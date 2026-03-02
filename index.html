@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BDO Dream Horse Calculator v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
+
+:root {
+  --bg:        #0b0c0f;
+  --surface:   #13151c;
+  --surface2:  #1c1f2a;
+  --surface3:  #252836;
+  --border:    #2e3245;
+  --border2:   #404560;
+  --text:      #f0f0ff;
+  --text-2:    #c0c4e0;
+  --text-3:    #8890b8;
+  --gold:      #ffd166;
+  --gold-dim:  #8a6010;
+  --ard:       #60d0f0;
+  --ard-bg:    rgba(96,208,240,.07);
+  --ard-bd:    rgba(96,208,240,.3);
+  --din:       #70e898;
+  --din-bg:    rgba(112,232,152,.07);
+  --din-bd:    rgba(112,232,152,.3);
+  --doom:      #ff8055;
+  --doom-bg:   rgba(255,128,85,.07);
+  --doom-bd:   rgba(255,128,85,.3);
+  --green:     #5ee05e;
+  --blue-m:    #60aaff;
+  --stone:     #e0a050;
+  --cron:      #c07cff;
+  --radius:    10px;
+  --radius-sm: 6px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;}
+body{display:flex;flex-direction:column;}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+/* ══ HEADER ══ */
+#hdr{
+  flex-shrink:0;height:46px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);
+}
+.hdr-left h1{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);letter-spacing:1.5px;}
+.hdr-left p{font-size:1rem;color:var(--text-3);margin-top:1px;}
+.hsel{display:flex;gap:6px;}
+.hbtn{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:var(--radius-sm);border:1px solid var(--border2);
+  background:var(--surface2);cursor:pointer;transition:all .2s;
+  font-family:'Inter',sans-serif;font-size:1rem;font-weight:500;color:var(--text-2);
+}
+.hbtn .ico{font-size:1rem;}
+.hbtn:hover{border-color:var(--border2);background:var(--surface3);}
+.hbtn.sel-a{border-color:var(--ard-bd);background:var(--ard-bg);color:var(--ard);}
+.hbtn.sel-d{border-color:var(--din-bd);background:var(--din-bg);color:var(--din);}
+.hbtn.sel-o{border-color:var(--doom-bd);background:var(--doom-bg);color:var(--doom);}
+
+/* ══ BODY: 3 cols ══ */
+#body{flex:1;display:grid;grid-template-columns:1fr 1fr 290px;overflow:hidden;min-height:0;}
+
+/* ══ COL ══ */
+.col{display:flex;flex-direction:column;gap:6px;padding:8px;overflow:hidden;min-height:0;border-right:1px solid var(--border);}
+.col:last-child{border-right:none;}
+.scroll{overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;}
+
+/* ══ PANEL ══ */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;flex-shrink:0;}
+.panel-title{font-size:1rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-2);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.panel-title span{display:flex;align-items:center;gap:5px;}
+
+/* ══ STATS ══ */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex-shrink:0;}
+.sbox{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:5px 8px;text-align:center;}
+.sbox .sl{font-size:1rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-2);}
+.sbox .sv{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);font-weight:700;margin-top:2px;line-height:1;}
+.sbox .ss{font-size:1rem;color:var(--text-2);margin-top:2px;}
+
+/* ══ MAT ROWS ══ */
+.section-label{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-2);padding:2px 0 4px;display:flex;align-items:center;justify-content:center;gap:4px;}
+.section-label.ard{color:var(--ard);} .section-label.din{color:var(--din);} .section-label.doom-c{color:var(--doom);}
+.mr{display:grid;grid-template-columns:1fr 95px 62px;gap:6px;align-items:center;padding:3px 0;border-bottom:1px solid var(--border);}
+.mr:last-child{border-bottom:none;}
+.mr-info{display:flex;flex-direction:column;gap:1px;}
+.mr-name-row{display:flex;align-items:center;gap:5px;}
+.mr-icon{width:28px;height:28px;border-radius:5px;border:1px solid var(--border2);flex-shrink:0;image-rendering:pixelated;}
+.mr-name{font-size:1rem;font-weight:600;color:var(--text);}
+.mr-tags{display:flex;align-items:center;gap:4px;margin-top:0;}
+.tag{font-size:1rem;font-weight:600;padding:1px 6px;border-radius:3px;}
+.tag.green{background:rgba(78,201,78,.15);color:var(--green);}
+.tag.blue{background:rgba(74,158,255,.15);color:var(--blue-m);}
+.tag.stone{background:rgba(212,148,74,.15);color:var(--stone);}
+.tag.cron{background:rgba(176,110,224,.15);color:var(--cron);}
+.mr-qty{display:flex;align-items:center;gap:3px;margin-top:1px;}
+.mr-qty span{font-size:1rem;color:var(--text-2);}
+.qty-in{width:48px;text-align:center;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:1rem;font-weight:600;padding:3px 4px;font-family:'Inter',sans-serif;}
+.qty-in:focus{outline:none;border-color:var(--gold-dim);}
+.price-in{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:.8rem;padding:3px 6px;width:100%;text-align:right;font-family:'Inter',sans-serif;transition:border-color .2s;}
+.price-in:focus{outline:none;border-color:var(--gold-dim);}
+.free-label{font-size:1rem;color:var(--blue-m);text-align:center;padding:4px 0;opacity:.8;}
+.sub-val{font-size:1rem;font-weight:700;text-align:right;color:var(--gold);}
+.req-badge{font-size:.55rem;background:rgba(232,80,80,.2);color:#f08080;border-radius:3px;padding:1px 4px;margin-left:4px;}
+
+/* ══ DISTRIBUTION ══ */
+.dist-item{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+.dist-item:last-child{margin-bottom:0;}
+.dist-row{display:flex;justify-content:space-between;align-items:center;}
+.dist-label{font-size:1rem;font-weight:600;display:flex;align-items:center;gap:5px;color:var(--text);}
+.dist-val{font-size:1rem;font-weight:700;color:var(--gold);}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--surface3);outline:none;cursor:pointer;margin:4px 0;}
+input[type=range].ra::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--ard);cursor:pointer;box-shadow:0 0 6px var(--ard);}
+input[type=range].rd::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--din);cursor:pointer;box-shadow:0 0 6px var(--din);}
+input[type=range].ro::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--doom);cursor:pointer;box-shadow:0 0 6px var(--doom);}
+.bar-track{height:4px;border-radius:2px;background:var(--surface3);overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;transition:width .25s;}
+.bar-a{background:linear-gradient(90deg,#1a4a5e,var(--ard));}
+.bar-d{background:linear-gradient(90deg,#1a4a1e,var(--din));}
+.bar-o{background:linear-gradient(90deg,#5e1a0a,var(--doom));}
+.dist-footer{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);margin-top:8px;}
+.dist-total-label{font-size:1rem;color:var(--text-3);}
+.dist-total-val{font-size:1rem;font-weight:700;}
+.dist-status{font-size:1rem;margin-top:5px;padding:4px 8px;border-radius:4px;text-align:center;}
+.dist-status.ok{background:rgba(78,201,78,.1);color:#4ec94e;}
+.dist-status.warn{background:rgba(240,200,80,.1);color:#f0c840;}
+.dist-status.err{background:rgba(240,80,80,.1);color:#f05050;}
+.reset-btn{font-size:1rem;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text-2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+.reset-btn:hover{border-color:var(--border2);background:var(--surface3);color:var(--text);}
+
+/* ══ ATTEMPT MAP ══ */
+.amap{display:flex;flex-wrap:wrap;gap:4px;overflow-y:auto;align-content:flex-start;}
+.dot{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;transition:transform .15s,box-shadow .15s;flex-shrink:0;}
+.dot:hover{transform:scale(1.1);z-index:10;}
+.dot .dn{font-size:1rem;font-weight:700;}
+.dot .dr{font-size:.55rem;margin-top:1px;opacity:.6;}
+.dot.fail{background:rgba(60,15,15,.9);border:1px solid rgba(160,40,40,.4);color:#c05050;}
+.dot.cur{border:2px solid;animation:glow 1.5s infinite;}
+.dot.cur.ca{background:rgba(15,50,70,.95);border-color:var(--ard);color:var(--ard);}
+.dot.cur.cd{background:rgba(15,55,25,.95);border-color:var(--din);color:var(--din);}
+.dot.cur.co{background:rgba(60,20,10,.95);border-color:var(--doom);color:var(--doom);}
+.dot.fut{background:rgba(20,20,35,.6);border:1px solid var(--border);color:var(--text-3);}
+@keyframes glow{0%,100%{box-shadow:0 0 6px currentColor;}50%{box-shadow:0 0 14px currentColor;}}
+
+/* ══ ATTEMPT CONTROLS ══ */
+.att-ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;flex-shrink:0;}
+.att-ctrl label{font-size:1rem;color:var(--text);}
+.att-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:1rem;cursor:pointer;line-height:1;transition:all .15s;}
+.att-btn:hover{background:var(--surface3);}
+.att-btn:disabled{opacity:.35;cursor:not-allowed;}
+.att-num{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:1rem;padding:3px 4px;font-family:'Inter',sans-serif;}
+.att-num:disabled{opacity:.35;}
+.cron-tog{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:1rem;color:var(--text);}
+.cron-tog input{accent-color:var(--cron);width:13px;height:13px;}
+
+/* ══ HORSE CARD ══ */
+.horse-card{border-radius:var(--radius);padding:14px;border:1px solid;flex-shrink:0;}
+.horse-card.hca{border-color:var(--ard-bd);background:var(--ard-bg);}
+.horse-card.hcd{border-color:var(--din-bd);background:var(--din-bg);}
+.horse-card.hco{border-color:var(--doom-bd);background:var(--doom-bg);}
+.hc-emoji{font-size:2rem;text-align:center;display:block;margin-bottom:6px;}
+.hc-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;}
+.hca .hc-name{color:var(--ard);} .hcd .hc-name{color:var(--din);} .hco .hc-name{color:var(--doom);}
+.hc-sub{font-size:1rem;color:var(--text-2);margin-top:2px;}
+.hc-desc{font-size:1rem;color:var(--text);margin-top:6px;line-height:1.5;}
+.hc-abilities{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:4px;}
+.abtag{font-size:1rem;font-weight:600;padding:2px 8px;border-radius:12px;}
+.hca .abtag{background:rgba(91,196,232,.12);color:var(--ard);}
+.hcd .abtag{background:rgba(109,214,138,.12);color:var(--din);}
+.hco .abtag{background:rgba(240,120,80,.12);color:var(--doom);}
+
+/* ══ COST CARD ══ */
+.cost-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);}
+.cost-row:last-child{border-bottom:none;}
+.cost-label{font-size:1rem;color:var(--text-2);}
+.cost-val{font-size:1rem;font-weight:700;color:#f0f0ff;}
+.cost-total{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);}
+.cost-total .cost-label{font-size:1rem;font-weight:600;color:var(--text);}
+.cost-total .cost-val{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold);}
+.cron-saving{font-size:.73rem;color:var(--cron);margin-top:6px;padding:4px 8px;background:rgba(176,110,224,.08);border-radius:4px;border:1px solid rgba(176,110,224,.2);display:none;}
+
+/* ══ CRON SOURCE BTNS ══ */
+.src-btns{display:flex;gap:4px;margin-top:4px;}
+.src-btn{font-size:.73rem;font-weight:600;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--surface2);color:var(--text-3);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
+.src-btn:hover{background:var(--surface3);}
+.src-btn.active-npc{background:rgba(176,110,224,.2);border-color:var(--cron);color:var(--cron);}
+.src-btn.active-mkt{background:rgba(74,158,255,.2);border-color:var(--blue-m);color:var(--blue-m);}
+
+/* ══ DIVIDER ══ */
+.div{height:1px;background:var(--border);margin:2px 0;flex-shrink:0;}
+
+/* ══ TIP BOX ══ */
+.tip-box{font-size:.73rem;color:var(--text-2);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;line-height:1.7;flex-shrink:0;}
+.tip-box b{color:var(--text-2);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="hdr-left">
+    <h1>⚔ Dream Horse Awakening</h1>
+    <p>Black Desert Online — T8 Courser → T9 Dream Horse Calculator</p>
+  </div>
+  <div class="hsel">
+    <button class="hbtn sel-a" onclick="selHorse('arduanatt',this)"><span class="ico">🦅</span>Arduanatt</button>
+    <button class="hbtn" onclick="selHorse('dine',this)"><span class="ico">🦄</span>Diné</button>
+    <button class="hbtn" onclick="selHorse('doom',this)"><span class="ico">🔥</span>Doom</button>
+  </div>
+</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- COL 1: Stats + Materials -->
+  <div class="col">
+
+    <div class="scroll">
+      <div class="panel">
+        <div class="section-label ard">🦅 Arduanatt — Skill</div>
+        <div id="mr-arduanatt"></div>
+        <div class="div" style="margin:8px 0;"></div>
+        <div class="section-label din">🦄 Diné — Elegance</div>
+        <div id="mr-dine"></div>
+        <div class="div" style="margin:8px 0;"></div>
+        <div class="section-label doom-c">🔥 Doom — Strength</div>
+        <div id="mr-doom"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COL 2: Distribution + Fixed + Map -->
+  <div class="col">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="sbox"><div class="sl">Attempt</div><div class="sv" id="s-att">1</div><div class="ss">current</div></div>
+      <div class="sbox"><div class="sl">Success</div><div class="sv" id="s-rate">1.0%</div><div class="ss">this attempt</div></div>
+      <div class="sbox"><div class="sl">Average</div><div class="sv">~23</div><div class="ss">attempts</div></div>
+      <div class="sbox"><div class="sl">Per Attempt</div><div class="sv" id="s-cost">—</div><div class="ss">silver</div></div>
+      <div class="sbox"><div class="sl">Avg Total</div><div class="sv" id="s-avg">—</div><div class="ss">×23 avg</div></div>
+    </div>
+
+    <!-- Distribution -->
+    <div class="panel" style="flex-shrink:0;">
+      <div class="panel-title">
+        <span>⚖ Training Distribution</span>
+        <button class="reset-btn" onclick="resetDist()">↺ Reset</button>
+      </div>
+      <div id="dist-sliders"></div>
+      <div class="dist-footer">
+        <span class="dist-total-label">Total Training</span>
+        <span class="dist-total-val" id="dt">0%</span>
+      </div>
+      <div class="dist-status warn" id="dn">⚠ Set to 200% to unlock attempts</div>
+    </div>
+
+    <!-- Fixed mats -->
+    <div class="panel" style="flex-shrink:0;">
+      <div class="panel-title"><span>🪨 Fixed Materials</span></div>
+      <div id="mr-fixed"></div>
+    </div>
+
+    <!-- Attempt map -->
+    <div class="panel" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+      <div class="panel-title"><span>🗺 Attempt Map</span><span style="font-size:1rem;color:var(--text-3);font-weight:400;">30 max</span></div>
+      <div class="att-ctrl">
+        <label>Attempts:</label>
+        <button class="att-btn" id="btn-minus" onclick="chAtt(-1)">−</button>
+        <input type="number" class="att-num" id="att-in" value="1" min="1" max="30" oninput="setAtt(parseInt(this.value)||1)" disabled>
+        <button class="att-btn" id="btn-plus" onclick="chAtt(1)">+</button>
+        <label class="cron-tog"><input type="checkbox" id="cron-chk" onchange="recalc()"><span>Crons ×100</span></label>
+      </div>
+      <div class="amap" id="amap" style="flex:1;min-height:0;"></div>
+    </div>
+  </div>
+
+  <!-- COL 3: Horse + Cost -->
+  <div class="col">
+    <div id="horse-card"></div>
+
+    <div class="panel">
+      <div class="panel-title"><span>💰 Cost Summary</span></div>
+      <div class="cost-row"><span class="cost-label">1 attempt (full)</span><span class="cost-val" id="c1">—</span></div>
+      <div class="cost-row"><span class="cost-label">Current total (×<span id="cn">1</span>)</span><span class="cost-val" id="cc">—</span></div>
+      <div class="cost-row"><span class="cost-label">Average (~×23)</span><span class="cost-val" id="ca">—</span></div>
+      <div class="cost-row"><span class="cost-label">Worst case (×30)</span><span class="cost-val" id="cw">—</span></div>
+      <div class="cost-total"><span class="cost-label">Your Total</span><span class="cost-val" id="ctb">—</span></div>
+      <div class="cron-saving" id="cron-saving"></div>
+    </div>
+
+    <div class="tip-box">
+      💡 <b>Efficiency:</b> Green = 1%/unit (0.5% after 100%) · Blue = 2%/unit (1% after 100%)<br>
+      🟣 <b>Crons:</b> Keep 50% training on fail → only refill 100% mats next attempt
+    </div>
+  </div>
+
+</div>
+
+<script>
+const H={
+  arduanatt:{label:'Arduanatt',cat:'Skill',color:'var(--ard)',emoji:'🦅',el:'Wind · Sky',
+    abilities:['Double Jump','Glide','Air Drift'],desc:'Best for open world exploration and mobility.',
+    mats:[
+      {name:'Fruit of Yianaros',   t:'blue', exp:2,dq:0,dp:0,      hp:false, icon:'https://bdo.altarofgaming.com/wp-content/uploads/2020/10/Fruit-of-Yianaros-black-desert-online-database-altarofgaming-24x24.png'},
+      {name:'Stonetail Fodder',    t:'green',exp:1,dq:0,dp:2500000,hp:true,  icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/12/stonetail-fodder-black-desert-online-database-24x24.png'},
+      {name:'Rainbow Gem Fruit',   t:'green',exp:1,dq:0,dp:2500000,hp:true,  icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/12/rainbow-gem-fruit-black-desert-online-database-24x24.png'},
+    ]},
+  dine:{label:'Diné',cat:'Elegance',color:'var(--din)',emoji:'🦄',el:'Light · Unicorn',
+    abilities:['Healing Aura','Magic Shield','Holy Charge'],desc:'Best for sustained combat and life skills.',
+    mats:[
+      {name:'Mysterious Blue Conch',          t:'blue', exp:2,dq:0,dp:0,      hp:false, icon:'https://bdo.altarofgaming.com/wp-content/uploads/2020/10/Mysterious-Blue-Conch-black-desert-online-database-altarofgaming-24x24.png'},
+      {name:'Spirit Pouch of Ferocious Beast',t:'green',exp:1,dq:0,dp:2500000,hp:true,  icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/12/spirit-pouch-of-ferocious-beast-black-desert-online-database-24x24.png'},
+      {name:'Breezy Conch Seaweed',           t:'green',exp:1,dq:0,dp:2500000,hp:true,  icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/12/breezy-conch-seaweed-black-desert-online-database-24x24.png'},
+    ]},
+  doom:{label:'Doom',cat:'Strength',color:'var(--doom)',emoji:'🔥',el:'Fire · Lava',
+    abilities:['Flame Dash','Lava Stomp','War Cry'],desc:'Best for PvP and raw combat power.',
+    mats:[
+      {name:'Brilliant Crimson Fire Flower', t:'blue', exp:2,dq:0,dp:0,      hp:false, icon:'https://bdo.altarofgaming.com/wp-content/uploads/2020/10/Brilliant-Crimson-Fire-Flower-black-desert-online-database-altarofgaming-24x24.png'},
+      {name:'Deep Blue Hoof Root',           t:'green',exp:1,dq:0,dp:2500000,hp:true,  icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/12/deep-blue-hoof-root-black-desert-online-database-24x24.png'},
+      {name:'Pure Forest Breath',            t:'green',exp:1,dq:0,dp:2500000,hp:true,  icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/01/pure-forest-breath-item-black-desert-online-database-24x24.png'},
+    ]}
+};
+const FM=[
+  {name:"Krogdalo's Origin Stone",t:'stone',dp:25000000,req:true, cron:false,icon:'https://bdo.altarofgaming.com/wp-content/uploads/2019/09/krogdalos-origin-stone-item-black-desert-online-database-24x24.png'},
+  {name:'Cron Stones ×100',       t:'cron', dp:3000000, req:false,cron:true, icon:''},
+];
+
+let cur='arduanatt', att=1, MP={}, MQ={}, dist={arduanatt:0,dine:0,doom:0};
+const fmt=n=>{if(!n||isNaN(n))return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return''+n;};
+const getRate=a=>+(Math.min(1+(a-1)*0.2,100)).toFixed(1);
+
+function selHorse(h,btn){
+  cur=h;
+  document.querySelectorAll('.hbtn').forEach(b=>{b.className='hbtn';});
+  btn.classList.add({arduanatt:'sel-a',dine:'sel-d',doom:'sel-o'}[h]);
+  renderHorseCard();
+  recalc();
+}
+
+function renderHorseCard(){
+  const h=H[cur], cls={arduanatt:'hca',dine:'hcd',doom:'hco'}[cur];
+  document.getElementById('horse-card').innerHTML=`
+    <div class="horse-card ${cls}">
+      <span class="hc-emoji">${h.emoji}</span>
+      <div class="hc-name">${h.label}</div>
+      <div class="hc-sub">${h.el} · ${h.cat} Training</div>
+      <div class="hc-desc">${h.desc}</div>
+      <div class="hc-abilities">${h.abilities.map(a=>`<span class="abtag">${a}</span>`).join('')}</div>
+    </div>`;
+}
+
+function renderMats(){
+  Object.keys(H).forEach(h=>{
+    const div=document.getElementById(`mr-${h}`); div.innerHTML='';
+    H[h].mats.forEach((m,i)=>{
+      const k=`${h}_${i}`;
+      if(!(k in MP)) MP[k]=m.dp;
+      if(!(k in MQ)) MQ[k]=m.dq;
+      const row=document.createElement('div'); row.className='mr';
+      const pc=m.hp
+        ?`<input class="price-in" type="number" value="${MP[k]}" placeholder="Price/unit" onchange="MP['${k}']=parseInt(this.value)||0;syncDist()">`
+        :`<div class="free-label">Farm / Events</div>`;
+      const sc=m.hp?`<div class="sub-val" id="sub_${k}">—</div>`:`<div style="font-size:1rem;color:var(--text-3);text-align:right;">free</div>`;
+      row.innerHTML=`
+        <div class="mr-info">
+          <div class="mr-name-row">
+            ${m.icon?`<img class="mr-icon" src="${m.icon}" onerror="this.style.display='none'">`:``}
+            <span class="mr-name">${m.name}</span>
+          </div>
+          <div class="mr-tags">
+            <span class="tag ${m.t}">${m.t==='green'?'🟢 +'+m.exp+'%':'🔵 +'+m.exp+'%'}</span>
+          </div>
+          <div class="mr-qty"><span>Qty:</span>
+            <input class="qty-in" type="number" value="${MQ[k]}" min="0" max="200" id="qty_${k}"
+              onchange="MQ['${k}']=parseInt(this.value)||0;calcDistFromMats();recalc()">
+            <span>/ 200</span>
+          </div>
+        </div>${pc}${sc}`;
+      div.appendChild(row);
+    });
+  });
+
+  const fd=document.getElementById('mr-fixed'); fd.innerHTML='';
+  FM.forEach((m,i)=>{
+    const k=`fixed_${i}`; if(!(k in MP)) MP[k]=m.dp;
+    const row=document.createElement('div'); row.className='mr';
+    if(m.cron){
+      row.innerHTML=`
+        <div class="mr-info">
+          <div class="mr-name-row"><span style="font-size:1rem;">🟣</span><span class="mr-name">${m.name}</span></div>
+          <span class="tag cron">🟣 Optional</span>
+          <div class="src-btns">
+            <button class="src-btn active-npc" id="cron-npc" onclick="setCronSrc('npc')">NPC 3M</button>
+            <button class="src-btn" id="cron-mkt" onclick="setCronSrc('market')">Market 2.2M</button>
+          </div>
+        </div>
+        <input class="price-in" type="number" value="${MP[k]}" id="cron-price-input" placeholder="Price/unit"
+          onchange="MP['${k}']=parseInt(this.value)||0;recalc()">
+        <div class="sub-val" id="sub_${k}">—</div>`;
+    } else {
+      row.innerHTML=`
+        <div class="mr-info">
+          <div class="mr-name-row">
+            ${m.icon?`<img class="mr-icon" src="${m.icon}" onerror="this.style.display='none'">`:``}
+            <span class="mr-name">${m.name}<span class="req-badge">REQ</span></span>
+          </div>
+          <span class="tag stone">🪨 Origin Stone</span>
+        </div>
+        <input class="price-in" type="number" value="${MP[k]}" placeholder="Price"
+          onchange="MP['${k}']=parseInt(this.value)||0;recalc()">
+        <div class="sub-val" id="sub_${k}">—</div>`;
+    }
+    fd.appendChild(row);
+  });
+}
+
+function renderDist(){
+  const sl=document.getElementById('dist-sliders'); sl.innerHTML='';
+  const cfg={
+    arduanatt:{l:'🦅 Arduanatt',cls:'ra',bar:'bar-a'},
+    dine:     {l:'🦄 Diné',     cls:'rd',bar:'bar-d'},
+    doom:     {l:'🔥 Doom',     cls:'ro',bar:'bar-o'},
+  };
+  Object.keys(cfg).forEach(h=>{
+    const c=cfg[h], d=document.createElement('div'); d.className='dist-item';
+    d.innerHTML=`
+      <div class="dist-row">
+        <span class="dist-label">${c.l}</span>
+        <span class="dist-val" id="dv-${h}">${dist[h]}%</span>
+      </div>
+      <input type="range" class="${c.cls}" min="0" max="200" step="10" value="${dist[h]}"
+        oninput="updDist('${h}',parseInt(this.value))">
+      <div class="bar-track"><div class="bar-fill ${c.bar}" id="db-${h}" style="width:${dist[h]/2}%"></div></div>`;
+    sl.appendChild(d);
+  });
+  updDistTotal();
+}
+
+function updDist(h,v){
+  const others=Object.keys(dist).filter(k=>k!==h).reduce((s,k)=>s+dist[k],0);
+  v=Math.min(v,200-others);
+  dist[h]=v;
+  const cls={arduanatt:'ra',dine:'rd',doom:'ro'}[h];
+  document.querySelectorAll(`input[type=range].${cls}`).forEach(s=>s.value=v);
+  document.getElementById(`dv-${h}`).textContent=v+'%';
+  document.getElementById(`db-${h}`).style.width=(v/2)+'%';
+  syncDist(); updDistTotal();
+}
+
+function resetDist(){
+  dist={arduanatt:0,dine:0,doom:0};
+  const cls={arduanatt:'ra',dine:'rd',doom:'ro'};
+  Object.keys(dist).forEach(h=>{
+    document.querySelectorAll(`input[type=range].${cls[h]}`).forEach(s=>s.value=0);
+    const dv=document.getElementById(`dv-${h}`); if(dv) dv.textContent='0%';
+    const db=document.getElementById(`db-${h}`); if(db) db.style.width='0%';
+  });
+  syncDist(); updDistTotal();
+}
+
+function updDistTotal(){
+  const tot=dist.arduanatt+dist.dine+dist.doom;
+  const el=document.getElementById('dt'); el.textContent=tot+'%';
+  const dn=document.getElementById('dn');
+  const ready=tot===200;
+  if(tot===0){dn.textContent='Set sliders to reach 200%';dn.className='dist-status warn';}
+  else if(tot<200){dn.textContent=`⚠ Need ${200-tot}% more`;dn.className='dist-status warn';}
+  else if(tot>200){dn.textContent=`⚠ Over by ${tot-200}% — reduce`;dn.className='dist-status err';}
+  else{dn.textContent='✔ Ready to attempt!';dn.className='dist-status ok';}
+  el.style.color=ready?'var(--green)':tot>200?'#f05050':'var(--gold)';
+  const btns=document.querySelectorAll('.att-btn');
+  const inp=document.getElementById('att-in');
+  btns.forEach(b=>{b.disabled=!ready;});
+  if(inp) inp.disabled=!ready;
+}
+
+function syncDist(){
+  Object.keys(H).forEach(h=>{
+    const pct=dist[h], gNeed=Math.min(pct,100);
+    const greens=H[h].mats.map((m,i)=>({m,i,k:`${h}_${i}`})).filter(x=>x.m.t==='green')
+      .sort((a,b)=>(MP[a.k]||0)-(MP[b.k]||0));
+    let rem=gNeed;
+    greens.forEach(({k})=>{const f=Math.min(rem,100);MQ[k]=f;rem=Math.max(0,rem-f);});
+  });
+  Object.keys(H).forEach(h=>{
+    H[h].mats.forEach((m,i)=>{
+      const k=`${h}_${i}`, el=document.getElementById(`qty_${k}`);
+      if(el) el.value=MQ[k];
+    });
+  });
+  recalc();
+}
+
+function calcDistFromMats(){
+  const raw={arduanatt:0,dine:0,doom:0};
+  Object.keys(H).forEach(h=>{
+    let exp=0;
+    H[h].mats.forEach((m,i)=>{const k=`${h}_${i}`;exp+=(MQ[k]||0)*(m.t==='green'?1:2);});
+    raw[h]=Math.min(exp,200);
+  });
+  const tot=raw.arduanatt+raw.dine+raw.doom;
+  if(tot>200){const sc=200/tot; Object.keys(raw).forEach(h=>raw[h]=Math.round(raw[h]*sc/10)*10);}
+  const cls={arduanatt:'ra',dine:'rd',doom:'ro'};
+  Object.keys(H).forEach(h=>{
+    dist[h]=raw[h];
+    document.querySelectorAll(`input[type=range].${cls[h]}`).forEach(s=>s.value=raw[h]);
+    const dv=document.getElementById(`dv-${h}`); if(dv) dv.textContent=raw[h]+'%';
+    const db=document.getElementById(`db-${h}`); if(db) db.style.width=(raw[h]/2)+'%';
+  });
+  updDistTotal();
+}
+
+function setCronSrc(src){
+  const price=src==='npc'?3000000:2200000;
+  MP['fixed_1']=price;
+  const inp=document.getElementById('cron-price-input'); if(inp) inp.value=price;
+  const n=document.getElementById('cron-npc'), m=document.getElementById('cron-mkt');
+  if(n&&m){
+    n.className='src-btn'+(src==='npc'?' active-npc':'');
+    m.className='src-btn'+(src==='market'?' active-mkt':'');
+  }
+  recalc();
+}
+
+function chAtt(d){att=Math.max(1,Math.min(30,att+d));document.getElementById('att-in').value=att;recalc();}
+function setAtt(v){att=Math.max(1,Math.min(30,v));recalc();}
+
+function recalc(){
+  const cron=document.getElementById('cron-chk').checked;
+  let matCost=0, stoneCost=0, cronCost=0;
+  Object.keys(H).forEach(h=>{
+    H[h].mats.forEach((m,i)=>{
+      const k=`${h}_${i}`;
+      if(m.hp){const s=(MQ[k]||0)*(MP[k]||0);matCost+=s;const e=document.getElementById(`sub_${k}`);if(e)e.textContent=fmt(s);}
+    });
+  });
+  FM.forEach((m,i)=>{
+    const k=`fixed_${i}`, up=MP[k]||0;
+    if(m.cron){cronCost=cron?up*100:0;}
+    else{stoneCost=up;}
+    const s=m.cron?(cron?up*100:0):up;
+    const e=document.getElementById(`sub_${k}`);
+    if(e)e.textContent=m.cron?(cron?fmt(s):'—'):fmt(s);
+  });
+  const cpaFull=matCost+stoneCost+cronCost;
+  const cpaFail=cron?(matCost/2+stoneCost+cronCost):cpaFull;
+  const totCur=att<=1?cpaFull:cpaFull+(att-1)*cpaFail;
+  const totAvg=cpaFull+22*cpaFail, totWorst=cpaFull+29*cpaFail;
+  const rate=getRate(att);
+  document.getElementById('s-att').textContent=att;
+  document.getElementById('s-rate').textContent=rate+'%';
+  document.getElementById('s-cost').textContent=fmt(cpaFull);
+  document.getElementById('s-avg').textContent=fmt(totAvg);
+  document.getElementById('c1').textContent=fmt(cpaFull)+' silver';
+  document.getElementById('cn').textContent=att;
+  document.getElementById('cc').textContent=fmt(totCur)+' silver';
+  document.getElementById('ca').textContent=fmt(totAvg)+' silver';
+  document.getElementById('cw').textContent=fmt(totWorst)+' silver';
+  document.getElementById('ctb').textContent=fmt(totCur)+' silver';
+  const sv=document.getElementById('cron-saving');
+  if(sv){if(cron&&att>1){sv.textContent=`🟣 Crons save ~${fmt((matCost/2)*(att-1))} silver on failed attempts`;sv.style.display='block';}else sv.style.display='none';}
+  renderMap(cpaFull,cpaFail,cron);
+}
+
+function renderMap(cpaFull,cpaFail,cron){
+  const map=document.getElementById('amap'); map.innerHTML='';
+  const cc={arduanatt:'ca',dine:'cd',doom:'co'}[cur];
+  for(let i=1;i<=30;i++){
+    const r=getRate(i), d=document.createElement('div');
+    d.className='dot '+(i<att?'fail':i===att?`cur ${cc}`:'fut');
+    d.innerHTML=`<span class="dn">#${i}</span><span class="dr">${r}%</span>`;
+    const cost=i===1?cpaFull:cpaFail;
+    d.title=`Attempt ${i} · ${r}% success · ${fmt(cost)} silver${cron&&i>1?' (50% refill)':''}`;
+    map.appendChild(d);
+  }
+}
+
+renderHorseCard(); renderMats(); renderDist(); recalc();
+</script>
+</body>
+</html>
