@@ -3,7 +3,66 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>BDO Dream Horse Calculator v2</title>
+
+<!-- ═══ SEO ═══ -->
+<title>BDO Dream Horse Calculator — T8 Courser to T9 Arduanatt, Diné & Doom | Black Desert Online</title>
+<meta name="description" content="Free Black Desert Online Dream Horse calculator. Plan your T8 Courser awakening to Arduanatt, Diné or Doom. Calculate training distribution, material costs, Cron Stone savings and success rates across 30 attempts."/>
+<meta name="keywords" content="BDO dream horse calculator, Black Desert Online T9 horse, Arduanatt calculator, Diné calculator, Doom calculator, BDO courser awakening, dream horse materials, Stonetail Fodder, Krogdalo Origin Stone, BDO horse training, cron stones horse"/>
+<meta name="author" content="BDO Dream Horse Calculator"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://bdo-dream-horse-calculator.com/"/>
+
+<!-- ═══ Open Graph (Facebook / Discord) ═══ -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="BDO Dream Horse Calculator — Arduanatt, Diné & Doom"/>
+<meta property="og:description" content="Calculate materials, costs and success rates for your BDO T9 Dream Horse awakening. Supports Arduanatt, Diné and Doom with Cron Stone optimization."/>
+<meta property="og:url" content="https://bdo-dream-horse-calculator.com/"/>
+<meta property="og:site_name" content="BDO Dream Horse Calculator"/>
+<meta property="og:image" content="https://bdo-dream-horse-calculator.com/og-image.jpg"/>
+
+<!-- ═══ Twitter Card ═══ -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="BDO Dream Horse Calculator — T9 Arduanatt, Diné & Doom"/>
+<meta name="twitter:description" content="Plan your BDO T8 Courser awakening. Calculate training distribution, material costs and Cron Stone savings."/>
+<meta name="twitter:image" content="https://bdo-dream-horse-calculator.com/og-image.jpg"/>
+
+<!-- ═══ Structured Data ═══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "BDO Dream Horse Calculator",
+  "description": "Black Desert Online T8 Courser to T9 Dream Horse awakening calculator for Arduanatt, Diné and Doom.",
+  "url": "https://bdo-dream-horse-calculator.com/",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "genre": "Game Calculator",
+  "keywords": "BDO, Black Desert Online, Dream Horse, Arduanatt, Diné, Doom, T9 Horse, Calculator"
+}
+</script>
+
+<!-- ═══ Google Analytics ═══ -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGEY05E1F4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VGEY05E1F4', {
+    page_title: 'BDO Dream Horse Calculator',
+    page_location: window.location.href,
+    send_page_view: true
+  });
+
+  // Custom event tracking helpers
+  function trackEvent(action, category, label, value){
+    gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value
+    });
+  }
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
 
@@ -275,7 +334,7 @@ input[type=range].ro::-webkit-slider-thumb{-webkit-appearance:none;width:14px;he
         <button class="att-btn" id="btn-minus" onclick="chAtt(-1)">−</button>
         <input type="number" class="att-num" id="att-in" value="1" min="1" max="30" oninput="setAtt(parseInt(this.value)||1)" disabled>
         <button class="att-btn" id="btn-plus" onclick="chAtt(1)">+</button>
-        <label class="cron-tog"><input type="checkbox" id="cron-chk" onchange="recalc()"><span>Crons ×100</span></label>
+        <label class="cron-tog"><input type="checkbox" id="cron-chk" onchange="recalc();if(typeof trackEvent!=='undefined') trackEvent('cron_toggle','Crons',this.checked?'enabled':'disabled')"><span>Crons ×100</span></label>
       </div>
       <div class="amap" id="amap" style="flex:1;min-height:0;"></div>
     </div>
@@ -337,6 +396,7 @@ const fmt=n=>{if(!n||isNaN(n))return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B'
 const getRate=a=>+(Math.min(1+(a-1)*0.2,100)).toFixed(1);
 
 function selHorse(h,btn){
+  if(typeof trackEvent!=='undefined') trackEvent('select_horse','Horse',h);
   cur=h;
   document.querySelectorAll('.hbtn').forEach(b=>{b.className='hbtn';});
   btn.classList.add({arduanatt:'sel-a',dine:'sel-d',doom:'sel-o'}[h]);
@@ -474,7 +534,8 @@ function updDistTotal(){
   if(tot===0){dn.textContent='Set sliders to reach 200%';dn.className='dist-status warn';}
   else if(tot<200){dn.textContent=`⚠ Need ${200-tot}% more`;dn.className='dist-status warn';}
   else if(tot>200){dn.textContent=`⚠ Over by ${tot-200}% — reduce`;dn.className='dist-status err';}
-  else{dn.textContent='✔ Ready to attempt!';dn.className='dist-status ok';}
+  else{dn.textContent='✔ Ready to attempt!';dn.className='dist-status ok';
+    if(typeof trackEvent!=='undefined') trackEvent('distribution_ready','Training','200%_reached');}
   el.style.color=ready?'var(--green)':tot>200?'#f05050':'var(--gold)';
   const btns=document.querySelectorAll('.att-btn');
   const inp=document.getElementById('att-in');
@@ -548,7 +609,8 @@ function setCronSrc(src){
   recalc();
 }
 
-function chAtt(d){att=Math.max(1,Math.min(30,att+d));document.getElementById('att-in').value=att;recalc();}
+function chAtt(d){att=Math.max(1,Math.min(30,att+d));document.getElementById('att-in').value=att;recalc();
+  if(typeof trackEvent!=='undefined') trackEvent('attempt_change','Attempt','attempt_'+att,att);}
 function setAtt(v){att=Math.max(1,Math.min(30,v));recalc();}
 
 function recalc(){
