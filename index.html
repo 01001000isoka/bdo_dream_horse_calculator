@@ -435,7 +435,7 @@ function renderDist(){
         <span class="dist-label">${c.l}</span>
         <span class="dist-val" id="dv-${h}">${dist[h]}%</span>
       </div>
-      <input type="range" class="${c.cls}" min="0" max="200" step="10" value="${dist[h]}"
+      <input type="range" class="${c.cls}" min="0" max="180" step="10" value="${dist[h]}"
         oninput="updDist('${h}',parseInt(this.value))">
       <div class="bar-track"><div class="bar-fill ${c.bar}" id="db-${h}" style="width:${dist[h]/2}%"></div></div>`;
     sl.appendChild(d);
@@ -445,6 +445,7 @@ function renderDist(){
 
 function updDist(h,v){
   const others=Object.keys(dist).filter(k=>k!==h).reduce((s,k)=>s+dist[k],0);
+  v=Math.min(parseInt(v)||0,180);
   v=Math.min(v,200-others);
   dist[h]=v;
   const cls={arduanatt:'ra',dine:'rd',doom:'ro'}[h];
@@ -483,11 +484,14 @@ function updDistTotal(){
 
 function syncDist(){
   Object.keys(H).forEach(h=>{
-    const pct=dist[h], gNeed=Math.min(pct,100);
+    const pct=parseInt(dist[h])||0;
+    // 0-100%: 1 green qty = 1% | 101-180%: 2 green qty = 1%
+    const qtyNeeded = pct<=100 ? pct : 100+(pct-100)*2;
     const greens=H[h].mats.map((m,i)=>({m,i,k:`${h}_${i}`})).filter(x=>x.m.t==='green')
-      .sort((a,b)=>(MP[a.k]||0)-(MP[b.k]||0));
-    let rem=gNeed;
-    greens.forEach(({k})=>{const f=Math.min(rem,100);MQ[k]=f;rem=Math.max(0,rem-f);});
+      .sort((a,b)=>(MP[a.k]||0)-(MP[b.k]||0)||(a.i-b.i));
+    let rem=qtyNeeded;
+    greens.forEach(({k})=>{const f=Math.min(rem,200);MQ[k]=f;rem=Math.max(0,rem-f);});
+    // blue mats untouched
   });
   Object.keys(H).forEach(h=>{
     H[h].mats.forEach((m,i)=>{
@@ -498,12 +502,27 @@ function syncDist(){
   recalc();
 }
 
+function matExp(qty, type){
+  // green: qty 1-100 = 1%/unit, qty 101+ = 0.5%/unit (need 2 qty per 1%)
+  // blue:  qty 1-50  = 2%/unit, qty 51+  = 1%/unit  (need 1 qty per 1%)
+  // So: 100 green = 100%, 102 green = 101%, 104 green = 102% ...
+  if(type==='green'){
+    const q=qty||0;
+    if(q<=100) return q;
+    return 100 + Math.floor((q-100)/2);
+  } else {
+    const q=qty||0;
+    if(q<=50) return q*2;
+    return 100 + Math.floor(q-50);
+  }
+}
+
 function calcDistFromMats(){
   const raw={arduanatt:0,dine:0,doom:0};
   Object.keys(H).forEach(h=>{
     let exp=0;
-    H[h].mats.forEach((m,i)=>{const k=`${h}_${i}`;exp+=(MQ[k]||0)*(m.t==='green'?1:2);});
-    raw[h]=Math.min(exp,200);
+    H[h].mats.forEach((m,i)=>{const k=`${h}_${i}`;exp+=matExp(MQ[k],m.t);});
+    raw[h]=Math.min(Math.round(exp),180);
   });
   const tot=raw.arduanatt+raw.dine+raw.doom;
   if(tot>200){const sc=200/tot; Object.keys(raw).forEach(h=>raw[h]=Math.round(raw[h]*sc/10)*10);}
