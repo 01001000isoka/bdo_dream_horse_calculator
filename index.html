@@ -396,10 +396,21 @@ const fmt=n=>{if(!n||isNaN(n))return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B'
 const getRate=a=>+(Math.min(1+(a-1)*0.2,100)).toFixed(1);
 
 function selHorse(h,btn){
-  if(typeof trackEvent!=='undefined') trackEvent('select_horse','Horse',h);
   cur=h;
   document.querySelectorAll('.hbtn').forEach(b=>{b.className='hbtn';});
   btn.classList.add({arduanatt:'sel-a',dine:'sel-d',doom:'sel-o'}[h]);
+  // Update URL hash for GA tracking
+  const hashMap={arduanatt:'Arduanatt',dine:'Diné',doom:'Doom'};
+  history.replaceState(null,'','#'+hashMap[h]);
+  // Track as virtual page view in GA4
+  if(typeof gtag!=='undefined'){
+    gtag('event','page_view',{
+      page_title:'BDO Dream Horse — '+hashMap[h],
+      page_location:window.location.href,
+      page_path:'/#'+hashMap[h]
+    });
+    gtag('event','select_horse',{event_category:'Horse',event_label:hashMap[h]});
+  }
   renderHorseCard();
   recalc();
 }
@@ -663,6 +674,19 @@ function renderMap(cpaFull,cpaFail,cron){
   }
 }
 
+// Read hash on load to restore horse selection
+(function(){
+  const hashMap={'#Arduanatt':'arduanatt','#Diné':'dine','#Doom':'doom'};
+  const h=hashMap[window.location.hash]||'arduanatt';
+  cur=h;
+  const btnCls={arduanatt:'sel-a',dine:'sel-d',doom:'sel-o'};
+  document.querySelectorAll('.hbtn').forEach((b,i)=>{
+    const hs=['arduanatt','dine','doom'][i];
+    if(hs===h) b.classList.add(btnCls[h]);
+  });
+  const hashLabel={'arduanatt':'Arduanatt','dine':'Diné','doom':'Doom'};
+  history.replaceState(null,'','#'+hashLabel[h]);
+})();
 renderHorseCard(); renderMats(); renderDist(); recalc();
 </script>
 </body>
